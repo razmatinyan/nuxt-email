@@ -6,7 +6,7 @@ export class SmtpProvider implements EmailProvider {
   async send(_payload: NormalizedPayload): Promise<EmailResponse> {
     throw new Error(
       '[nuxt-email] The SMTP provider is not yet implemented. '
-      + 'It requires `nodemailer` as a peer dependency and will be available in Phase 3. '
+      + 'It requires `nodemailer` as a peer dependency. '
       + 'Use provider: \'console\' for development.',
     )
   }

@@ -66,7 +66,7 @@ describe('useEmail — validation', () => {
       .rejects.toThrow('`subject` contains newline')
   })
 
-  it('throws when template is used (Phase 2 deferred)', async () => {
+  it('throws when template is used (not yet implemented)', async () => {
     const { sendEmail } = useEmail()
     await expect(sendEmail({ to: 'a@b.com', subject: 'Test', template: 'welcome' }))
       .rejects.toThrow('Template rendering is not yet implemented')

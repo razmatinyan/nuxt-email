@@ -64,7 +64,7 @@ export interface EmailPayload {
   /** Plain text fallback */
   text?: string
 
-  /** Template name — filename without extension from templateDir (Phase 2+) */
+  /** Template name — filename without extension from templateDir */
   template?: string
 
   /** Props passed to the Vue template */

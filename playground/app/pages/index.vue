@@ -115,9 +115,9 @@ async function sendTestEmail() {
 
     <!-- Info banner -->
     <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800">
-      <strong class="font-semibold">Phase 1:</strong>
+      <strong class="font-semibold">Note:</strong>
       The ConsoleProvider logs email content to stdout instead of sending it.
-      Real provider adapters (Resend, SMTP, SendGrid, Postmark) are implemented in Phase 3.
+      Real provider adapters (Resend, SMTP, SendGrid, Postmark) are not yet implemented.
     </div>
   </div>
 </template>

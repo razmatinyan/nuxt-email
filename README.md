@@ -2,8 +2,6 @@
 
 Transactional email for Nuxt 4 — multi-provider support, Vue templates, and type-safe composables.
 
-> **Status:** Phase 1 — Foundation. ConsoleProvider is functional. Real provider adapters land in Phase 3.
-
 ## Quick Setup
 
 ```bash
@@ -15,7 +13,7 @@ npm install nuxt-email
 export default defineNuxtConfig({
   modules: ['nuxt-email'],
   email: {
-    provider: 'console', // logs to terminal; swap for 'resend', 'smtp', etc. in Phase 3
+    provider: 'console', // logs to terminal during development
     from: 'App <noreply@myapp.com>',
   },
 })
@@ -44,13 +42,13 @@ export default defineEventHandler(async (event) => {
 
 ## Providers
 
-| Provider | Status       |
-|----------|--------------|
-| console  | ✅ Phase 1   |
-| resend   | 🔜 Phase 3  |
-| sendgrid | 🔜 Phase 3  |
-| postmark | 🔜 Phase 3  |
-| smtp     | 🔜 Phase 3  |
+| Provider | Status      |
+|----------|-------------|
+| console  | Available   |
+| resend   | Coming soon |
+| sendgrid | Coming soon |
+| postmark | Coming soon |
+| smtp     | Coming soon |
 
 ## Development
 
@@ -70,15 +68,15 @@ npm run test:integration
 
 ## Configuration
 
-| Option        | Type     | Default          | Description                              |
-|---------------|----------|------------------|------------------------------------------|
-| `provider`    | string   | `'console'`      | Email provider                           |
-| `from`        | string   | —                | Default sender address                   |
-| `apiKey`      | string   | —                | Provider API key (prefer env var)        |
-| `retries`     | number   | `2`              | Retry attempts on transient failures     |
-| `retryDelay`  | number   | `1000`           | Delay between retries (ms)               |
-| `templateDir` | string   | `'server/emails'`| Vue template directory (Phase 2+)        |
-| `preview`     | boolean  | `true`           | Enable preview route in dev (Phase 2+)   |
+| Option        | Type     | Default           | Description                           |
+|---------------|----------|-------------------|---------------------------------------|
+| `provider`    | string   | `'console'`       | Email provider                        |
+| `from`        | string   | —                 | Default sender address                |
+| `apiKey`      | string   | —                 | Provider API key (prefer env var)     |
+| `retries`     | number   | `2`               | Retry attempts on transient failures  |
+| `retryDelay`  | number   | `1000`            | Delay between retries (ms)            |
+| `templateDir` | string   | `'server/emails'` | Vue template directory                |
+| `preview`     | boolean  | `true`            | Enable preview route in dev           |
 
 Set `NUXT_EMAIL_API_KEY` as an environment variable to override `apiKey` at runtime.
 

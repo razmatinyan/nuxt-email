@@ -14,11 +14,9 @@ export function useEmail() {
   async function sendEmail(payload: EmailPayload): Promise<EmailResponse> {
     validatePayload(payload)
 
-    // Template rendering deferred to Phase 2
     if (payload.template) {
       throw new Error(
         '[nuxt-email] Template rendering is not yet implemented. '
-        + 'It will be available in Phase 2. '
         + 'Pass `html` or `text` directly.',
       )
     }
