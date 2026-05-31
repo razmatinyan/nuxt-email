@@ -1,7 +1,5 @@
 import type { EmailPayload, EmailRuntimeConfig, NormalizedPayload } from '../../types/index.js'
 
-// ── Constants ─────────────────────────────────────────────────────────────────
-
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]+$/
 const HEADER_INJECTION_PATTERN = /[\r\n]/
 
@@ -18,8 +16,6 @@ const TRANSIENT_ERROR_TOKENS = [
   '503',
   '504',
 ]
-
-// ── Validation ────────────────────────────────────────────────────────────────
 
 export function validateAddress(address: string, field: string): void {
   if (HEADER_INJECTION_PATTERN.test(address)) {
@@ -62,8 +58,6 @@ export function validatePayload(payload: EmailPayload): void {
   }
 }
 
-// ── Normalization ─────────────────────────────────────────────────────────────
-
 export function normalizeAddresses(value: string | string[] | undefined): string[] | undefined {
   if (!value) return undefined
   return Array.isArray(value) ? value : [value]
@@ -97,8 +91,6 @@ export function buildNormalizedPayload(
     tags: payload.tags,
   }
 }
-
-// ── Retry helpers ─────────────────────────────────────────────────────────────
 
 export function isTransientError(error?: string): boolean {
   if (!error) return false

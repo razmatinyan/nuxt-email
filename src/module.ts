@@ -31,7 +31,6 @@ export default defineNuxtModule<EmailModuleOptions>({
     const logger = useLogger(MODULE_NAME)
     const { resolve } = createResolver(import.meta.url)
 
-    // ── Validate options ──────────────────────────────────────────────
     if (!VALID_PROVIDERS.includes(options.provider)) {
       throw new Error(
         `[nuxt-email] Unknown provider "${options.provider}". `
@@ -46,7 +45,6 @@ export default defineNuxtModule<EmailModuleOptions>({
       )
     }
 
-    // ── Inject private runtime config (never sent to client) ──────────
     ;(nuxt.options.runtimeConfig as Record<string, unknown>)._email = {
       provider: options.provider,
       apiKey: options.apiKey ?? '',
@@ -59,7 +57,6 @@ export default defineNuxtModule<EmailModuleOptions>({
       retryDelay: options.retryDelay!,
     }
 
-    // ── Register server-only auto-imports ─────────────────────────────
     addServerImports([
       {
         name: 'useEmail',
@@ -67,7 +64,6 @@ export default defineNuxtModule<EmailModuleOptions>({
       },
     ])
 
-    // ── TypeScript augmentation for runtimeConfig._email ─────────────
     addTypeTemplate({
       filename: 'types/nuxt-email.d.ts',
       getContents: () => `
@@ -87,7 +83,6 @@ export {}
   },
 })
 
-// Re-export public types for module consumers
 export type { EmailModuleOptions } from './runtime/types/index.js'
 export type {
   EmailPayload,

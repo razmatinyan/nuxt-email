@@ -7,3 +7,4 @@ playground/.output/
 coverage/
 *.log
 .DS_Store
+plan.md
