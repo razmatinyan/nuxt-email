@@ -1,4 +1,4 @@
-import { useRuntimeConfig } from '#imports'
+import { useRuntimeConfig } from 'nitropack/runtime'
 import type { EmailPayload, EmailResponse, EmailRuntimeConfig } from '../../types/index.js'
 import { createProvider } from '../utils/providers/index.js'
 import {

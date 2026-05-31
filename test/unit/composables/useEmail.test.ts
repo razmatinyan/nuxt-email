@@ -1,8 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import type { EmailResponse } from '../../../src/runtime/types/index.js'
+import type { EmailResponse, NormalizedPayload } from '../../../src/runtime/types/index.js'
 
-// Mock Nitro's #imports before importing the composable
-vi.mock('#imports', () => ({
+vi.mock('nitropack/runtime', () => ({
   useRuntimeConfig: () => ({
     _email: {
       provider: 'console',
@@ -18,7 +17,7 @@ vi.mock('#imports', () => ({
   }),
 }))
 
-const mockSend = vi.fn<() => Promise<EmailResponse>>()
+const mockSend = vi.fn<(payload: NormalizedPayload) => Promise<EmailResponse>>()
 
 vi.mock('../../../src/runtime/server/utils/providers/index.js', () => ({
   createProvider: () => ({

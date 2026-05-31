@@ -6,12 +6,13 @@
     "moduleResolution": "Bundler",
     "strict": true,
     "skipLibCheck": true,
+    "types": ["node"],
     "paths": {}
   },
   "include": [
     "src/**/*",
-    "test/**/*",
-    "playground/**/*"
+    "test/unit/**/*",
+    "test/integration/**/*"
   ],
   "exclude": [
     "node_modules",
