@@ -65,10 +65,17 @@ describe('useEmail — validation', () => {
       .rejects.toThrow('`subject` contains newline')
   })
 
-  it('throws when template is used (not yet implemented)', async () => {
+  it('renders a template and passes html to the provider', async () => {
     const { sendEmail } = useEmail()
-    await expect(sendEmail({ to: 'a@b.com', subject: 'Test', template: 'welcome' }))
-      .rejects.toThrow('Template rendering is not yet implemented')
+    await sendEmail({ to: 'a@b.com', subject: 'Test', template: 'welcome', props: { name: 'Alice' } })
+
+    expect(mockSend.mock.calls[0][0].html).toContain('Welcome Alice')
+  })
+
+  it('fails when the template does not exist', async () => {
+    const { sendEmail } = useEmail()
+    await expect(sendEmail({ to: 'a@b.com', subject: 'Test', template: 'missing' }))
+      .rejects.toThrow('Template "missing" not found')
   })
 })
 

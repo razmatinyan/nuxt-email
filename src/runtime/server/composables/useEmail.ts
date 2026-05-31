@@ -7,6 +7,8 @@ import {
   isTransientError,
   sleep,
 } from '../utils/email-utils.js'
+import { getEmailTemplate } from '../utils/templates.js'
+import { renderEmailTemplate } from '../utils/template-renderer.js'
 
 export function useEmail() {
   const config = useRuntimeConfig()._email as EmailRuntimeConfig
@@ -15,10 +17,9 @@ export function useEmail() {
     validatePayload(payload)
 
     if (payload.template) {
-      throw new Error(
-        '[nuxt-email] Template rendering is not yet implemented. '
-        + 'Pass `html` or `text` directly.',
-      )
+      const rendered = await renderEmailTemplate(getEmailTemplate(payload.template), payload.props ?? {})
+      payload.html = rendered.html
+      if (!payload.text) payload.text = rendered.text
     }
 
     const html = payload.html ?? ''

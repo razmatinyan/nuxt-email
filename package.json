@@ -37,7 +37,9 @@
     "release": "npm test && changelogen --release && npm publish && git push --follow-tags"
   },
   "dependencies": {
-    "@nuxt/kit": "^4.0.0"
+    "@nuxt/kit": "^4.0.0",
+    "juice": "^11.1.1",
+    "unplugin-vue": "^7.2.0"
   },
   "devDependencies": {
     "@nuxt/eslint-config": "latest",

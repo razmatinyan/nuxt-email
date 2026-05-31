@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
@@ -6,6 +7,9 @@ export default defineConfig({
     environment: 'node',
     include: ['test/**/*.test.ts'],
     testTimeout: 120000,
+    alias: {
+      '#nuxt-email/templates': fileURLToPath(new URL('./test/stubs/email-templates.ts', import.meta.url)),
+    },
     coverage: {
       provider: 'v8',
       include: ['src/**/*.ts'],
