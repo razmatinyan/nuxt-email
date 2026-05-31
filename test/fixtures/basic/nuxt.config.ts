@@ -2,7 +2,7 @@ import { defineNuxtConfig } from 'nuxt/config'
 
 export default defineNuxtConfig({
   modules: [
-    '../../src/module',
+    '../../../src/module',
   ],
   email: {
     provider: 'console',
