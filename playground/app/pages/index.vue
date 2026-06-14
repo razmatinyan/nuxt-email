@@ -7,10 +7,21 @@ type SendResult = {
   error?: string
 }
 
+type VerifyResult = {
+  ok: boolean
+  error?: string
+}
+
+const PROVIDERS = ['console', 'resend', 'sendgrid', 'postmark', 'smtp'] as const
+
 const status = ref<'idle' | 'loading' | 'success' | 'error'>('idle')
 const result = ref<SendResult | null>(null)
 const toAddress = ref('test@example.com')
 const recipientName = ref('Jane Doe')
+const provider = ref<string>('console')
+
+const verifyStatus = ref<'idle' | 'loading' | 'success' | 'error'>('idle')
+const verifyResult = ref<VerifyResult | null>(null)
 
 async function sendTestEmail() {
   status.value = 'loading'
@@ -22,6 +33,7 @@ async function sendTestEmail() {
       body: {
         to: toAddress.value,
         name: recipientName.value,
+        provider: provider.value,
       },
     })
     status.value = result.value?.success ? 'success' : 'error'
@@ -30,6 +42,24 @@ async function sendTestEmail() {
     const message = err instanceof Error ? err.message : String(err)
     result.value = { success: false, error: message }
     status.value = 'error'
+  }
+}
+
+async function verifyCredentials() {
+  verifyStatus.value = 'loading'
+  verifyResult.value = null
+
+  try {
+    verifyResult.value = await $fetch<VerifyResult>('/api/verify', {
+      method: 'POST',
+      body: { provider: provider.value },
+    })
+    verifyStatus.value = verifyResult.value?.ok ? 'success' : 'error'
+  }
+  catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err)
+    verifyResult.value = { ok: false, error: message }
+    verifyStatus.value = 'error'
   }
 }
 </script>
@@ -46,11 +76,12 @@ async function sendTestEmail() {
         <code class="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono text-gray-700">
           POST /api/send-welcome
         </code>
-        using the <strong>ConsoleProvider</strong>.
-        Check your terminal for the formatted output.
+        using the <strong>{{ provider }}</strong> provider.
+        <span v-if="provider === 'console'">Check your terminal for the formatted output.</span>
+        <span v-else>Credentials are read from <code class="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono text-gray-700">playground/.env</code>.</span>
       </p>
 
-      <div class="grid grid-cols-2 gap-4 mb-5">
+      <div class="grid grid-cols-2 gap-4 mb-4">
         <div>
           <label class="block text-xs font-medium text-gray-600 mb-1">To</label>
           <input
@@ -71,23 +102,65 @@ async function sendTestEmail() {
         </div>
       </div>
 
-      <button
-        class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        :disabled="status === 'loading'"
-        @click="sendTestEmail"
-      >
-        <svg
-          v-if="status === 'loading'"
-          class="animate-spin h-4 w-4"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
+      <div class="mb-5">
+        <label class="block text-xs font-medium text-gray-600 mb-1">Provider</label>
+        <select
+          v-model="provider"
+          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
         >
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-        </svg>
-        <span>{{ status === 'loading' ? 'Sending…' : 'Send test email' }}</span>
-      </button>
+          <option v-for="p in PROVIDERS" :key="p" :value="p">
+            {{ p }}
+          </option>
+        </select>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button
+          class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          :disabled="status === 'loading'"
+          @click="sendTestEmail"
+        >
+          <svg
+            v-if="status === 'loading'"
+            class="animate-spin h-4 w-4"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+          <span>{{ status === 'loading' ? 'Sending…' : 'Send test email' }}</span>
+        </button>
+
+        <button
+          class="inline-flex items-center gap-2 px-4 py-2 bg-white text-gray-700 text-sm font-medium rounded-md border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          :disabled="verifyStatus === 'loading'"
+          @click="verifyCredentials"
+        >
+          <svg
+            v-if="verifyStatus === 'loading'"
+            class="animate-spin h-4 w-4"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+          <span>{{ verifyStatus === 'loading' ? 'Verifying…' : 'Verify credentials' }}</span>
+        </button>
+
+        <Transition name="fade">
+          <span
+            v-if="verifyResult"
+            class="text-sm font-medium"
+            :class="verifyResult.ok ? 'text-green-600' : 'text-red-600'"
+          >
+            {{ verifyResult.ok ? '✓ Credentials valid' : `✗ ${verifyResult.error ?? 'Verification failed'}` }}
+          </span>
+        </Transition>
+      </div>
     </div>
 
     <!-- Result -->
@@ -114,10 +187,12 @@ async function sendTestEmail() {
     </Transition>
 
     <!-- Info banner -->
-    <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800">
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
       <strong class="font-semibold">Note:</strong>
-      The ConsoleProvider logs email content to stdout instead of sending it.
-      Real provider adapters (Resend, SMTP, SendGrid, Postmark) are not yet implemented.
+      The <strong>console</strong> provider logs email content to stdout instead of sending it.
+      Other providers (Resend, SendGrid, Postmark, SMTP) send real mail and require credentials in
+      <code class="bg-blue-100 px-1.5 py-0.5 rounded text-xs font-mono">playground/.env</code>.
+      Use "Verify credentials" to confirm a provider's API key or SMTP connection before sending.
     </div>
   </div>
 </template>

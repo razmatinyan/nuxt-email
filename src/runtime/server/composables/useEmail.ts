@@ -1,81 +1,89 @@
 import { useRuntimeConfig } from 'nitropack/runtime'
-import type { EmailPayload, EmailResponse, EmailRuntimeConfig } from '../../types/index.js'
+import type {
+	EmailPayload,
+	EmailResponse,
+	EmailRuntimeConfig,
+} from '../../types/index.js'
 import { createProvider } from '../utils/providers/index.js'
 import {
-  validatePayload,
-  buildNormalizedPayload,
-  isTransientError,
-  sleep,
+	validatePayload,
+	buildNormalizedPayload,
+	isTransientError,
+	sleep,
 } from '../utils/email-utils.js'
 import { getEmailTemplate } from '../utils/templates.js'
 import { renderEmailTemplate } from '../utils/template-renderer.js'
 
 export function useEmail() {
-  const config = useRuntimeConfig()._email as EmailRuntimeConfig
+	const config = useRuntimeConfig()._email as EmailRuntimeConfig
 
-  async function sendEmail(payload: EmailPayload): Promise<EmailResponse> {
-    validatePayload(payload)
+	async function sendEmail(payload: EmailPayload): Promise<EmailResponse> {
+		validatePayload(payload)
 
-    if (payload.template) {
-      const rendered = await renderEmailTemplate(getEmailTemplate(payload.template), payload.props ?? {})
-      payload.html = rendered.html
-      if (!payload.text) payload.text = rendered.text
-    }
+		if (payload.template) {
+			const rendered = await renderEmailTemplate(
+				getEmailTemplate(payload.template),
+				payload.props ?? {},
+			)
+			payload.html = rendered.html
+			if (!payload.text) payload.text = rendered.text
+		}
 
-    const html = payload.html ?? ''
-    const normalized = buildNormalizedPayload(payload, html, config)
+		const html = payload.html ?? ''
+		const normalized = buildNormalizedPayload(payload, html, config)
 
-    const provider = createProvider(config.provider)
-    const maxAttempts = (config.retries ?? 2) + 1
-    let lastResponse: EmailResponse | null = null
+		const provider = createProvider(config.provider, config)
+		const maxAttempts = (config.retries ?? 2) + 1
+		let lastResponse: EmailResponse | null = null
 
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      lastResponse = await provider.send(normalized)
+		for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+			lastResponse = await provider.send(normalized)
 
-      if (lastResponse.success) {
-        return lastResponse
-      }
+			if (lastResponse.success) {
+				return lastResponse
+			}
 
-      const shouldRetry = attempt < maxAttempts && isTransientError(lastResponse.error)
-      if (shouldRetry) {
-        await sleep((config.retryDelay ?? 1000) * attempt)
-      }
-      else {
-        break
-      }
-    }
+			const shouldRetry =
+				attempt < maxAttempts && isTransientError(lastResponse.error)
+			if (shouldRetry) {
+				await sleep((config.retryDelay ?? 1000) * attempt)
+			} else {
+				break
+			}
+		}
 
-    return lastResponse!
-  }
+		return lastResponse!
+	}
 
-  async function sendBatch(
-    payloads: EmailPayload[],
-    options?: { concurrency?: number },
-  ): Promise<EmailResponse[]> {
-    const concurrency = options?.concurrency ?? 5
-    const results: EmailResponse[] = []
+	async function sendBatch(
+		payloads: EmailPayload[],
+		options?: { concurrency?: number },
+	): Promise<EmailResponse[]> {
+		const concurrency = options?.concurrency ?? 5
+		const results: EmailResponse[] = []
 
-    for (let i = 0; i < payloads.length; i += concurrency) {
-      const chunk = payloads.slice(i, i + concurrency)
-      const settled = await Promise.allSettled(chunk.map(p => sendEmail(p)))
+		for (let i = 0; i < payloads.length; i += concurrency) {
+			const chunk = payloads.slice(i, i + concurrency)
+			const settled = await Promise.allSettled(
+				chunk.map(p => sendEmail(p)),
+			)
 
-      for (const result of settled) {
-        if (result.status === 'fulfilled') {
-          results.push(result.value)
-        }
-        else {
-          results.push({
-            success: false,
-            error: result.reason?.message ?? 'Unknown error',
-            provider: config.provider ?? 'unknown',
-            duration: 0,
-          })
-        }
-      }
-    }
+			for (const result of settled) {
+				if (result.status === 'fulfilled') {
+					results.push(result.value)
+				} else {
+					results.push({
+						success: false,
+						error: result.reason?.message ?? 'Unknown error',
+						provider: config.provider ?? 'unknown',
+						duration: 0,
+					})
+				}
+			}
+		}
 
-    return results
-  }
+		return results
+	}
 
-  return { sendEmail, sendBatch }
+	return { sendEmail, sendBatch }
 }

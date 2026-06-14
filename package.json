@@ -43,17 +43,25 @@
   },
   "devDependencies": {
     "@nuxt/eslint-config": "latest",
-    "@nuxt/module-builder": "^1.0.2",
+    "@nuxt/module-builder": "^1.0.0",
     "@nuxt/test-utils": "^4.0.3",
     "@nuxtjs/tailwindcss": "^6.14.0",
     "@types/node": "^25.9.1",
+    "@types/nodemailer": "latest",
     "@vitest/coverage-v8": "latest",
     "changelogen": "latest",
     "eslint": "latest",
+    "nodemailer": "^8.0.11",
     "nuxt": "^4.0.0",
     "vitest": "latest"
   },
   "peerDependencies": {
+    "nodemailer": "^7.0.0 || ^8.0.0",
     "nuxt": "^4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "nodemailer": {
+      "optional": true
+    }
   }
 }

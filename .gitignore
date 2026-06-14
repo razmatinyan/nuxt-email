@@ -12,3 +12,5 @@ CLAUDE.md
 RULES.md
 AGENTS.md
 .claude/
+.env
+playground/.env

@@ -1,6 +1,6 @@
 import type { Component } from 'vue'
-import { createSSRApp } from 'vue'
-import { renderToString } from 'vue/server-renderer'
+import { createSSRApp } from '@vue/runtime-dom'
+import { renderToString } from '@vue/server-renderer'
 import juice from 'juice'
 
 export async function renderEmailTemplate(
