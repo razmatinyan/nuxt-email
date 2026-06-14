@@ -9,6 +9,7 @@ import {
 	addTypeTemplate,
 	useLogger,
 } from '@nuxt/kit'
+import { addCustomTab } from '@nuxt/devtools-kit'
 import vuePlugin from 'unplugin-vue/rollup'
 import type { EmailModuleOptions } from './runtime/types/index.js'
 
@@ -105,13 +106,16 @@ export default defineNuxtModule<EmailModuleOptions>({
 				const imports = templates
 					.map(
 						(t, i) =>
-							`import t${i} from ${JSON.stringify(t.absPath.replace(/\\/g, '/'))}`,
+							`import * as t${i} from ${JSON.stringify(t.absPath.replace(/\\/g, '/'))}`,
 					)
 					.join('\n')
 				const entries = templates
-					.map((t, i) => `  ${JSON.stringify(t.name)}: t${i},`)
+					.map((t, i) => `  ${JSON.stringify(t.name)}: t${i}.default,`)
 					.join('\n')
-				return `${imports}\n\nexport const templates = {\n${entries}\n}\n`
+				const previewEntries = templates
+					.map((t, i) => `  ${JSON.stringify(t.name)}: __pp(t${i}),`)
+					.join('\n')
+				return `${imports}\n\nconst __pp = m => (m && m.previewProps) ? m.previewProps : {}\n\nexport const templates = {\n${entries}\n}\n\nexport const previewProps = {\n${previewEntries}\n}\n`
 			},
 		})
 
@@ -153,6 +157,31 @@ export default defineNuxtModule<EmailModuleOptions>({
 			addServerHandler({
 				route: '/_email/preview/:template',
 				handler: resolve('./runtime/server/api/preview'),
+			})
+			addServerHandler({
+				route: '/_email/send-test/:template',
+				method: 'post',
+				handler: resolve('./runtime/server/api/send-test.post'),
+			})
+			addServerHandler({
+				route: '/_email/templates',
+				method: 'get',
+				handler: resolve('./runtime/server/api/templates.get'),
+			})
+			addServerHandler({
+				route: '/_email/log',
+				method: 'get',
+				handler: resolve('./runtime/server/api/log.get'),
+			})
+			addServerHandler({
+				route: '/_email/devtools',
+				handler: resolve('./runtime/server/api/devtools'),
+			})
+			addCustomTab({
+				name: 'nuxt-email',
+				title: 'Email',
+				icon: 'carbon:email',
+				view: { type: 'iframe', src: '/_email/devtools' },
 			})
 		}
 

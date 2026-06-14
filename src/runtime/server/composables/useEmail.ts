@@ -13,11 +13,16 @@ import {
 } from '../utils/email-utils.js'
 import { getEmailTemplate } from '../utils/templates.js'
 import { renderEmailTemplate } from '../utils/template-renderer.js'
+import { recordSend } from '../utils/dev-log.js'
 
 export function useEmail() {
 	const config = useRuntimeConfig()._email as EmailRuntimeConfig
 
 	async function sendEmail(payload: EmailPayload): Promise<EmailResponse> {
+		if (import.meta.prerender) {
+			return { success: true, messageId: 'skipped-prerender', provider: config.provider, duration: 0 }
+		}
+
 		validatePayload(payload)
 
 		if (payload.template) {
@@ -40,7 +45,7 @@ export function useEmail() {
 			lastResponse = await provider.send(normalized)
 
 			if (lastResponse.success) {
-				return lastResponse
+				break
 			}
 
 			const shouldRetry =
@@ -52,6 +57,21 @@ export function useEmail() {
 			}
 		}
 
+		if (import.meta.dev) {
+			recordSend({
+				id: lastResponse!.messageId ?? `send-${Date.now()}`,
+				template: payload.template,
+				to: normalized.to,
+				subject: normalized.subject,
+				success: lastResponse!.success,
+				messageId: lastResponse!.messageId,
+				error: lastResponse!.error,
+				provider: lastResponse!.provider,
+				duration: lastResponse!.duration,
+				timestamp: Date.now(),
+			})
+		}
+
 		return lastResponse!
 	}
 
@@ -59,6 +79,8 @@ export function useEmail() {
 		payloads: EmailPayload[],
 		options?: { concurrency?: number },
 	): Promise<EmailResponse[]> {
+		if (payloads.length > 500) console.warn('[nuxt-email] sendBatch called with more than 500 emails; consider chunking or a queue.')
+
 		const concurrency = options?.concurrency ?? 5
 		const results: EmailResponse[] = []
 

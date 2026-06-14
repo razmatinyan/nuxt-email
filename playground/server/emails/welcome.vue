@@ -1,3 +1,10 @@
+<script lang="ts">
+export const previewProps = {
+	name: 'Jane Doe',
+	verifyUrl: 'https://example.com/verify',
+}
+</script>
+
 <script setup lang="ts">
 defineProps<{
 	name: string

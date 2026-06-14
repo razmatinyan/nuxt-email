@@ -1,7 +1,8 @@
-import type { EmailPayload, EmailRuntimeConfig, NormalizedPayload } from '../../types/index.js'
+import type { EmailPayload, EmailAttachment, EmailRuntimeConfig, NormalizedPayload } from '../../types/index.js'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]+$/
 const HEADER_INJECTION_PATTERN = /[\r\n]/
+const DISPLAY_NAME_PATTERN = /<([^>]+)>/
 
 const TRANSIENT_ERROR_TOKENS = [
   'timeout',
@@ -23,10 +24,24 @@ export function validateAddress(address: string, field: string): void {
       `[nuxt-email] Invalid email address in \`${field}\`: contains newline characters (potential header injection).`,
     )
   }
-  if (!EMAIL_PATTERN.test(address)) {
+  const match = DISPLAY_NAME_PATTERN.exec(address)
+  const emailPart = match ? match[1]!.trim() : address.trim()
+  if (!EMAIL_PATTERN.test(emailPart)) {
     throw new Error(
       `[nuxt-email] Invalid email address in \`${field}\`: "${address}"`,
     )
+  }
+}
+
+export function validateAttachments(attachments?: EmailAttachment[]): void {
+  if (!attachments) return
+  for (const attachment of attachments) {
+    if (!attachment.filename) {
+      throw new Error('[nuxt-email] Attachment is missing a `filename`.')
+    }
+    if (attachment.content === undefined || attachment.content === null) {
+      throw new Error(`[nuxt-email] Attachment "${attachment.filename}" is missing \`content\`.`)
+    }
   }
 }
 
@@ -56,6 +71,30 @@ export function validatePayload(payload: EmailPayload): void {
       '[nuxt-email] `subject` contains newline characters (potential header injection).',
     )
   }
+
+  if (payload.from) {
+    validateAddress(payload.from, 'from')
+  }
+
+  if (payload.cc) {
+    const ccAddresses = Array.isArray(payload.cc) ? payload.cc : [payload.cc]
+    for (const addr of ccAddresses) {
+      validateAddress(addr, 'cc')
+    }
+  }
+
+  if (payload.bcc) {
+    const bccAddresses = Array.isArray(payload.bcc) ? payload.bcc : [payload.bcc]
+    for (const addr of bccAddresses) {
+      validateAddress(addr, 'bcc')
+    }
+  }
+
+  if (payload.replyTo) {
+    validateAddress(payload.replyTo, 'replyTo')
+  }
+
+  validateAttachments(payload.attachments)
 }
 
 export function normalizeAddresses(value: string | string[] | undefined): string[] | undefined {

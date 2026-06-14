@@ -8,3 +8,7 @@ export const templates = {
     },
   },
 }
+
+export const previewProps: Record<string, Record<string, unknown>> = {
+  welcome: { name: 'Jane Doe' },
+}

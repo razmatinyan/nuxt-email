@@ -7,7 +7,7 @@ export default defineNuxtConfig({
   email: {
     provider: 'console',
     from: 'Test <test@fixture.local>',
-    preview: false,
+    preview: true,
     retries: 0,
     retryDelay: 0,
   },
