@@ -13,12 +13,14 @@ type VerifyResult = {
 }
 
 const PROVIDERS = ['console', 'resend', 'sendgrid', 'postmark', 'smtp'] as const
+const TEMPLATES = ['welcome', 'password-reset', 'order-confirmation'] as const
 
 const status = ref<'idle' | 'loading' | 'success' | 'error'>('idle')
 const result = ref<SendResult | null>(null)
 const toAddress = ref('test@example.com')
 const recipientName = ref('Jane Doe')
 const provider = ref<string>('console')
+const template = ref<string>('welcome')
 
 const verifyStatus = ref<'idle' | 'loading' | 'success' | 'error'>('idle')
 const verifyResult = ref<VerifyResult | null>(null)
@@ -34,6 +36,7 @@ async function sendTestEmail() {
         to: toAddress.value,
         name: recipientName.value,
         provider: provider.value,
+        template: template.value,
       },
     })
     status.value = result.value?.success ? 'success' : 'error'
@@ -76,7 +79,7 @@ async function verifyCredentials() {
         <code class="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono text-gray-700">
           POST /api/send-welcome
         </code>
-        using the <strong>{{ provider }}</strong> provider.
+        using the <strong>{{ provider }}</strong> provider with the <strong>{{ template }}</strong> template.
         <span v-if="provider === 'console'">Check your terminal for the formatted output.</span>
         <span v-else>Credentials are read from <code class="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono text-gray-700">playground/.env</code>.</span>
       </p>
@@ -102,16 +105,29 @@ async function verifyCredentials() {
         </div>
       </div>
 
-      <div class="mb-5">
-        <label class="block text-xs font-medium text-gray-600 mb-1">Provider</label>
-        <select
-          v-model="provider"
-          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-        >
-          <option v-for="p in PROVIDERS" :key="p" :value="p">
-            {{ p }}
-          </option>
-        </select>
+      <div class="grid grid-cols-2 gap-4 mb-5">
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Template</label>
+          <select
+            v-model="template"
+            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+          >
+            <option v-for="t in TEMPLATES" :key="t" :value="t">
+              {{ t }}
+            </option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Provider</label>
+          <select
+            v-model="provider"
+            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+          >
+            <option v-for="p in PROVIDERS" :key="p" :value="p">
+              {{ p }}
+            </option>
+          </select>
+        </div>
       </div>
 
       <div class="flex items-center gap-3">
