@@ -27,7 +27,7 @@ const basePayload: NormalizedPayload = {
 	html: '<p>Hello</p>',
 }
 
-describe('ResendProvider — constructor', () => {
+describe('ResendProviderconstructor', () => {
 	it('throws when apiKey is missing', () => {
 		expect(() => new ResendProvider({ ...baseConfig, apiKey: '' })).toThrow(
 			'[nuxt-email] ResendProvider requires `apiKey`.',
@@ -35,7 +35,7 @@ describe('ResendProvider — constructor', () => {
 	})
 })
 
-describe('ResendProvider — send()', () => {
+describe('ResendProvidersend()', () => {
 	beforeEach(() => {
 		vi.clearAllMocks()
 	})
@@ -142,7 +142,7 @@ describe('ResendProvider — send()', () => {
 	})
 })
 
-describe('ResendProvider — verify()', () => {
+describe('ResendProviderverify()', () => {
 	beforeEach(() => {
 		vi.clearAllMocks()
 	})

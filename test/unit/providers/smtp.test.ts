@@ -35,7 +35,7 @@ const basePayload: NormalizedPayload = {
 	html: '<p>Hello</p>',
 }
 
-describe('SmtpProvider — constructor', () => {
+describe('SmtpProviderconstructor', () => {
 	it('throws when smtpHost is missing', () => {
 		expect(() => new SmtpProvider({ ...baseConfig, smtpHost: '' })).toThrow(
 			'[nuxt-email] SmtpProvider requires `smtp.host`.',
@@ -43,7 +43,7 @@ describe('SmtpProvider — constructor', () => {
 	})
 })
 
-describe('SmtpProvider — send()', () => {
+describe('SmtpProvidersend()', () => {
 	beforeEach(() => {
 		vi.clearAllMocks()
 		mockCreateTransport.mockImplementation(() => ({
@@ -170,7 +170,7 @@ describe('SmtpProvider — send()', () => {
 	})
 })
 
-describe('SmtpProvider — verify()', () => {
+describe('SmtpProviderverify()', () => {
 	beforeEach(() => {
 		vi.clearAllMocks()
 		mockCreateTransport.mockImplementation(() => ({

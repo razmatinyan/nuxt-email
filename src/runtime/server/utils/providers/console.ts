@@ -12,7 +12,7 @@ export class ConsoleProvider implements EmailProvider {
 		const messageId = `console-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
 
 		console.log('\n' + '─'.repeat(60))
-		console.log('[nuxt-email] ConsoleProvider — Email would be sent')
+		console.log('[nuxt-email] ConsoleProvider: Email would be sent')
 		console.log('─'.repeat(60))
 		console.log(`  From:    ${payload.from}`)
 		console.log(`  To:      ${payload.to.join(', ')}`)

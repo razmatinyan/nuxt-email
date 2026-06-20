@@ -27,7 +27,7 @@ const basePayload: NormalizedPayload = {
 	html: '<p>Hello</p>',
 }
 
-describe('PostmarkProvider — constructor', () => {
+describe('PostmarkProviderconstructor', () => {
 	it('throws when apiKey is missing', () => {
 		expect(() => new PostmarkProvider({ ...baseConfig, apiKey: '' })).toThrow(
 			'[nuxt-email] PostmarkProvider requires `apiKey`.',
@@ -35,7 +35,7 @@ describe('PostmarkProvider — constructor', () => {
 	})
 })
 
-describe('PostmarkProvider — send()', () => {
+describe('PostmarkProvidersend()', () => {
 	beforeEach(() => {
 		vi.clearAllMocks()
 	})
@@ -170,7 +170,7 @@ describe('PostmarkProvider — send()', () => {
 	})
 })
 
-describe('PostmarkProvider — verify()', () => {
+describe('PostmarkProviderverify()', () => {
 	beforeEach(() => {
 		vi.clearAllMocks()
 	})

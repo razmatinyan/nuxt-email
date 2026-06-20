@@ -18,7 +18,10 @@ import { recordSend } from '../utils/dev-log.js'
 export function useEmail() {
 	const config = useRuntimeConfig()._email as EmailRuntimeConfig
 
-	async function sendEmail(payload: EmailPayload): Promise<EmailResponse> {
+	async function sendEmail(
+		payload: EmailPayload,
+		options?: { provider?: string },
+	): Promise<EmailResponse> {
 		if (import.meta.prerender) {
 			return { success: true, messageId: 'skipped-prerender', provider: config.provider, duration: 0 }
 		}
@@ -37,7 +40,7 @@ export function useEmail() {
 		const html = payload.html ?? ''
 		const normalized = buildNormalizedPayload(payload, html, config)
 
-		const provider = createProvider(config.provider, config)
+		const provider = createProvider(options?.provider || config.provider, config)
 		const maxAttempts = (config.retries ?? 2) + 1
 		let lastResponse: EmailResponse | null = null
 

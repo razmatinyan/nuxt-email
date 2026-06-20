@@ -39,7 +39,7 @@ const successResponse: EmailResponse = {
 	duration: 1,
 }
 
-describe('useEmail — validation', () => {
+describe('useEmailvalidation', () => {
 	beforeEach(() => {
 		vi.clearAllMocks()
 		mockSend.mockResolvedValue(successResponse)
@@ -101,7 +101,7 @@ describe('useEmail — validation', () => {
 	})
 })
 
-describe('useEmail — normalization', () => {
+describe('useEmailnormalization', () => {
 	beforeEach(() => {
 		vi.clearAllMocks()
 		mockSend.mockResolvedValue(successResponse)
@@ -154,7 +154,7 @@ describe('useEmail — normalization', () => {
 	})
 })
 
-describe('useEmail — retry logic', () => {
+describe('useEmailretry logic', () => {
 	beforeEach(() => {
 		vi.clearAllMocks()
 	})
@@ -228,12 +228,12 @@ describe('useEmail — retry logic', () => {
 		})
 
 		expect(result.success).toBe(false)
-		// config.retries = 2 → maxAttempts = 3
+		// 1 try plus 2 retries
 		expect(mockSend).toHaveBeenCalledTimes(3)
 	})
 })
 
-describe('useEmail — sendBatch', () => {
+describe('useEmailsendBatch', () => {
 	beforeEach(() => {
 		vi.clearAllMocks()
 	})
@@ -253,8 +253,7 @@ describe('useEmail — sendBatch', () => {
 	})
 
 	it('captures validation errors per-email without failing the whole batch', async () => {
-		// email[1] has to='bad' — fails validatePayload before reaching mockSend
-		// so only 2 mockSend calls are made (for email[0] and email[2])
+		// the 'bad' address fails validation before any send happens
 		mockSend
 			.mockResolvedValueOnce(successResponse)
 			.mockResolvedValueOnce(successResponse)

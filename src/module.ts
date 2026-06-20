@@ -22,6 +22,14 @@ interface ScannedTemplate {
 	absPath: string
 }
 
+// The bits of the nitro:config payload we touch. That hook isn't in @nuxt/kit's
+// types, so we cast nuxt.hook to accept it (see setup).
+interface NitroConfig {
+	alias?: Record<string, string>
+	externals?: { inline?: (string | RegExp)[] }
+	rollupConfig?: { plugins?: unknown[] }
+}
+
 function scanTemplates(dir: string): ScannedTemplate[] {
 	if (!existsSync(dir)) return []
 
@@ -79,7 +87,11 @@ export default defineNuxtModule<EmailModuleOptions>({
 			)
 		}
 
-		;(nuxt.options.runtimeConfig as Record<string, unknown>)._email = {
+		const runtimeConfig = nuxt.options.runtimeConfig as Record<
+			string,
+			unknown
+		>
+		runtimeConfig._email = {
 			provider: options.provider,
 			apiKey: options.apiKey ?? '',
 			from: options.from ?? '',
@@ -97,7 +109,7 @@ export default defineNuxtModule<EmailModuleOptions>({
 			options.templateDir!,
 		)
 
-		// Generate a real file in the build dir listing the user's compiled templates.
+		// Write a file that imports every .vue template, plus a map of their preview props.
 		const templatesFile = addTemplate({
 			filename: 'nuxt-email/templates.mjs',
 			write: true,
@@ -110,7 +122,9 @@ export default defineNuxtModule<EmailModuleOptions>({
 					)
 					.join('\n')
 				const entries = templates
-					.map((t, i) => `  ${JSON.stringify(t.name)}: t${i}.default,`)
+					.map(
+						(t, i) => `  ${JSON.stringify(t.name)}: t${i}.default,`,
+					)
 					.join('\n')
 				const previewEntries = templates
 					.map((t, i) => `  ${JSON.stringify(t.name)}: __pp(t${i}),`)
@@ -119,32 +133,29 @@ export default defineNuxtModule<EmailModuleOptions>({
 			},
 		})
 
-		// Expose the generated file to server runtime via a server-safe Nitro alias (Vue app aliases
-		// like `#build` are banned in server runtime; nitro virtuals aren't resolved in dev). The path
-		// is forward-slashed so Nitro's resolver handles it rather than Node treating `d:\…` as a URL.
-		// The file (and the user's `.vue` templates) must be inlined so Nitro's rollup + unplugin-vue
-		// compile them — otherwise dev externalizes the file and Node fails on the raw `.vue` import.
-		// `nitro:config` fires at runtime but is absent from this @nuxt/kit version's hook typings.
+		// Give the server an alias to that file and let unplugin-vue compile the .vue
+		// templates. We inline both so Nitro bundles them instead of trying to import
+		// the raw .vue at runtime.
 		const templatesFilePath = templatesFile.dst.replace(/\\/g, '/')
 		const templatesDirPath = templatesDir.replace(/\\/g, '/')
-		type NitroConfigHook = (nitro: {
-			alias?: Record<string, string>
-			externals?: { inline?: (string | RegExp)[] }
-			rollupConfig?: { plugins?: unknown[] }
-		}) => void
-		;(nuxt.hook as (name: string, cb: NitroConfigHook) => void)(
-			'nitro:config',
-			nitro => {
-				nitro.alias ||= {}
-				nitro.alias['#nuxt-email/templates'] = templatesFilePath
-				nitro.externals ||= {}
-				nitro.externals.inline ||= []
-				nitro.externals.inline.push(templatesFilePath, templatesDirPath)
-				nitro.rollupConfig ||= {}
-				nitro.rollupConfig.plugins ||= []
-				nitro.rollupConfig.plugins.push(vuePlugin())
-			},
-		)
+
+		const onNitroConfig = nuxt.hook as (
+			name: 'nitro:config',
+			cb: (config: NitroConfig) => void,
+		) => void
+
+		onNitroConfig('nitro:config', config => {
+			config.alias = config.alias || {}
+			config.alias['#nuxt-email/templates'] = templatesFilePath
+
+			config.externals = config.externals || {}
+			config.externals.inline = config.externals.inline || []
+			config.externals.inline.push(templatesFilePath, templatesDirPath)
+
+			config.rollupConfig = config.rollupConfig || {}
+			config.rollupConfig.plugins = config.rollupConfig.plugins || []
+			config.rollupConfig.plugins.push(vuePlugin())
+		})
 
 		addServerImports([
 			{
@@ -172,6 +183,11 @@ export default defineNuxtModule<EmailModuleOptions>({
 				route: '/_email/log',
 				method: 'get',
 				handler: resolve('./runtime/server/api/log.get'),
+			})
+			addServerHandler({
+				route: '/_email/config',
+				method: 'get',
+				handler: resolve('./runtime/server/api/config.get'),
 			})
 			addServerHandler({
 				route: '/_email/devtools',

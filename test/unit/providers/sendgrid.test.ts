@@ -27,7 +27,7 @@ const basePayload: NormalizedPayload = {
 	html: '<p>Hello</p>',
 }
 
-describe('SendGridProvider — constructor', () => {
+describe('SendGridProviderconstructor', () => {
 	it('throws when apiKey is missing', () => {
 		expect(() => new SendGridProvider({ ...baseConfig, apiKey: '' })).toThrow(
 			'[nuxt-email] SendGridProvider requires `apiKey`.',
@@ -35,7 +35,7 @@ describe('SendGridProvider — constructor', () => {
 	})
 })
 
-describe('SendGridProvider — send()', () => {
+describe('SendGridProvidersend()', () => {
 	beforeEach(() => {
 		vi.clearAllMocks()
 	})
@@ -202,7 +202,7 @@ describe('SendGridProvider — send()', () => {
 	})
 })
 
-describe('SendGridProvider — verify()', () => {
+describe('SendGridProviderverify()', () => {
 	beforeEach(() => {
 		vi.clearAllMocks()
 	})

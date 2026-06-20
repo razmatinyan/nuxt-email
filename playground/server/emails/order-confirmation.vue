@@ -22,7 +22,7 @@ export interface OrderItem {
 	price: number
 }
 
-const props = defineProps<{
+defineProps<{
 	name: string
 	orderNumber: string
 	items: OrderItem[]
@@ -45,16 +45,13 @@ function formatPrice(amount: number) {
 			<tbody>
 				<tr>
 					<td style="padding:40px 16px;">
-						<!-- Card -->
 						<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="max-width:580px;margin:0 auto;background-color:#ffffff;border-radius:12px;border:1px solid #e4e4e7;overflow:hidden;">
 							<tbody>
-								<!-- Header bar -->
 								<tr>
 									<td style="background-color:#18181b;padding:24px 32px;">
 										<span style="font-size:18px;font-weight:700;color:#ffffff;letter-spacing:-0.3px;">{{ appName ?? 'nuxt-email' }}</span>
 									</td>
 								</tr>
-								<!-- Success strip -->
 								<tr>
 									<td style="background-color:#f0fdf4;padding:20px 32px;border-bottom:1px solid #dcfce7;">
 										<table role="presentation" cellpadding="0" cellspacing="0" width="100%">
@@ -72,7 +69,6 @@ function formatPrice(amount: number) {
 										</table>
 									</td>
 								</tr>
-								<!-- Greeting -->
 								<tr>
 									<td style="padding:32px 32px 24px;">
 										<h1 style="margin:0 0 10px;font-size:22px;font-weight:700;color:#18181b;letter-spacing:-0.4px;">Thanks for your order, {{ name }}!</h1>
@@ -81,7 +77,6 @@ function formatPrice(amount: number) {
 										</p>
 									</td>
 								</tr>
-								<!-- Items table -->
 								<tr>
 									<td style="padding:0 32px 24px;">
 										<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border:1px solid #e4e4e7;border-radius:8px;overflow:hidden;">
@@ -102,7 +97,6 @@ function formatPrice(amount: number) {
 										</table>
 									</td>
 								</tr>
-								<!-- Totals -->
 								<tr>
 									<td style="padding:0 32px 28px;">
 										<table role="presentation" cellpadding="0" cellspacing="0" width="100%">
@@ -127,7 +121,6 @@ function formatPrice(amount: number) {
 										</table>
 									</td>
 								</tr>
-								<!-- Shipping address + CTA -->
 								<tr v-if="shippingAddress || trackingUrl">
 									<td style="padding:0 32px 28px;">
 										<table role="presentation" cellpadding="0" cellspacing="0" width="100%">
@@ -142,7 +135,7 @@ function formatPrice(amount: number) {
 															:href="trackingUrl"
 															style="display:inline-block;padding:10px 20px;background-color:#18181b;color:#ffffff;font-size:13px;font-weight:600;text-decoration:none;border-radius:7px;"
 														>
-															Track order →
+															Track order
 														</a>
 													</td>
 												</tr>
@@ -150,7 +143,6 @@ function formatPrice(amount: number) {
 										</table>
 									</td>
 								</tr>
-								<!-- Footer -->
 								<tr>
 									<td style="padding:20px 32px 28px;border-top:1px solid #f4f4f5;">
 										<p style="margin:0;font-size:12px;color:#a1a1aa;line-height:1.5;">

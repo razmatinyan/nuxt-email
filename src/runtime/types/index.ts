@@ -31,7 +31,7 @@ export interface SmtpConfig {
 	secure?: boolean
 }
 
-/** Stored in runtimeConfig._email — private, never serialized to the client */
+/** Stored in runtimeConfig._email. Private, never sent to the client. */
 export interface EmailRuntimeConfig {
 	provider: string
 	apiKey: string

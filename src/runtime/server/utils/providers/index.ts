@@ -7,7 +7,7 @@ import { SmtpProvider } from './smtp.js'
 
 type ProviderName = 'console' | 'resend' | 'sendgrid' | 'postmark' | 'smtp'
 
-const VALID_PROVIDERS: ProviderName[] = [
+export const VALID_PROVIDERS: ProviderName[] = [
 	'console',
 	'resend',
 	'sendgrid',
