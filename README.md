@@ -12,13 +12,13 @@ Transactional email for Nuxt 4: a provider-agnostic API, Vue-powered templates, 
 ## Quick Setup
 
 ```bash
-npm install nuxt-email
+npm install @razmatinyan/nuxt-email
 ```
 
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  modules: ['nuxt-email'],
+  modules: ['@razmatinyan/nuxt-email'],
   email: {
     provider: 'console', // logs to the terminal during development
     from: 'App <noreply@myapp.com>',
