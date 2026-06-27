@@ -8,14 +8,20 @@ export default defineNuxtConfig({
 
   email: {
     provider: (process.env.NUXT_EMAIL_PROVIDER as EmailModuleOptions['provider']) || 'console',
-    apiKey: process.env.NUXT_EMAIL_API_KEY,
     from: process.env.NUXT_EMAIL_FROM || 'Playground <noreply@playground.local>',
-    smtp: {
-      host: process.env.NUXT_EMAIL_SMTP_HOST!,
-      port: Number(process.env.NUXT_EMAIL_SMTP_PORT) || 587,
-      user: process.env.NUXT_EMAIL_SMTP_USER,
-      pass: process.env.NUXT_EMAIL_SMTP_PASS,
-      secure: process.env.NUXT_EMAIL_SMTP_SECURE === 'true',
+    providers: {
+      resend: { apiKey: process.env.NUXT_EMAIL_RESEND_API_KEY },
+      sendgrid: { apiKey: process.env.NUXT_EMAIL_SENDGRID_API_KEY },
+      postmark: { apiKey: process.env.NUXT_EMAIL_POSTMARK_API_KEY },
+      smtp: {
+        smtp: {
+          host: process.env.NUXT_EMAIL_SMTP_HOST!,
+          port: Number(process.env.NUXT_EMAIL_SMTP_PORT) || 587,
+          user: process.env.NUXT_EMAIL_SMTP_USER,
+          pass: process.env.NUXT_EMAIL_SMTP_PASS,
+          secure: process.env.NUXT_EMAIL_SMTP_SECURE === 'true',
+        },
+      },
     },
     preview: true,
     retries: 1,

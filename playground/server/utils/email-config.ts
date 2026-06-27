@@ -1,9 +1,22 @@
 import type { EmailRuntimeConfig } from '../../../src/runtime/types/index.js'
 
+function apiKeyFor(provider: string): string {
+  switch (provider) {
+    case 'resend':
+      return process.env.NUXT_EMAIL_RESEND_API_KEY ?? ''
+    case 'sendgrid':
+      return process.env.NUXT_EMAIL_SENDGRID_API_KEY ?? ''
+    case 'postmark':
+      return process.env.NUXT_EMAIL_POSTMARK_API_KEY ?? ''
+    default:
+      return ''
+  }
+}
+
 export function buildEmailConfig(provider: string): EmailRuntimeConfig {
   return {
     provider,
-    apiKey: process.env.NUXT_EMAIL_API_KEY ?? '',
+    apiKey: apiKeyFor(provider),
     from: process.env.NUXT_EMAIL_FROM || 'Playground <noreply@playground.local>',
     smtpHost: process.env.NUXT_EMAIL_SMTP_HOST ?? '',
     smtpPort: Number(process.env.NUXT_EMAIL_SMTP_PORT) || 587,

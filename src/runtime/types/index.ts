@@ -10,6 +10,9 @@ export interface EmailModuleOptions {
 
 	smtp?: SmtpConfig
 
+	/** Per-provider credentials. Each entry overrides the top-level `apiKey`/`smtp`/`from` for that provider. */
+	providers?: Partial<Record<EmailModuleOptions['provider'], ProviderOptions>>
+
 	/** Directory for Vue email templates relative to project root. Default: 'server/emails' */
 	templateDir?: string
 
@@ -31,6 +34,24 @@ export interface SmtpConfig {
 	secure?: boolean
 }
 
+/** Credentials for a single provider, overriding the top-level defaults. */
+export interface ProviderOptions {
+	apiKey?: string
+	from?: string
+	smtp?: SmtpConfig
+}
+
+/** Flat per-provider overrides stored in runtime config. */
+export interface ProviderRuntimeOptions {
+	apiKey?: string
+	from?: string
+	smtpHost?: string
+	smtpPort?: number
+	smtpUser?: string
+	smtpPass?: string
+	smtpSecure?: boolean
+}
+
 /** Stored in runtimeConfig._email. Private, never sent to the client. */
 export interface EmailRuntimeConfig {
 	provider: string
@@ -43,6 +64,7 @@ export interface EmailRuntimeConfig {
 	smtpSecure: boolean
 	retries: number
 	retryDelay: number
+	providers?: Record<string, ProviderRuntimeOptions>
 }
 
 export interface EmailPayload {

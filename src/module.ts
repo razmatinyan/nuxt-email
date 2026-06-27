@@ -11,7 +11,7 @@ import {
 } from '@nuxt/kit'
 import { addCustomTab } from '@nuxt/devtools-kit'
 import vuePlugin from 'unplugin-vue/rollup'
-import type { EmailModuleOptions } from './runtime/types/index.js'
+import type { EmailModuleOptions, ProviderRuntimeOptions } from './runtime/types/index.js'
 
 const MODULE_NAME = 'nuxt-email'
 const CONFIG_KEY = 'email'
@@ -28,6 +28,27 @@ interface NitroConfig {
 	alias?: Record<string, string>
 	externals?: { inline?: (string | RegExp)[] }
 	rollupConfig?: { plugins?: unknown[] }
+}
+
+function flattenProviders(
+	providers: EmailModuleOptions['providers'],
+): Record<string, ProviderRuntimeOptions> | undefined {
+	if (!providers) return undefined
+
+	const result: Record<string, ProviderRuntimeOptions> = {}
+	for (const [name, opts] of Object.entries(providers)) {
+		if (!opts) continue
+		result[name] = {
+			apiKey: opts.apiKey,
+			from: opts.from,
+			smtpHost: opts.smtp?.host,
+			smtpPort: opts.smtp?.port,
+			smtpUser: opts.smtp?.user,
+			smtpPass: opts.smtp?.pass,
+			smtpSecure: opts.smtp?.secure,
+		}
+	}
+	return result
 }
 
 function scanTemplates(dir: string): ScannedTemplate[] {
@@ -102,6 +123,7 @@ export default defineNuxtModule<EmailModuleOptions>({
 			smtpSecure: options.smtp?.secure ?? false,
 			retries: options.retries!,
 			retryDelay: options.retryDelay!,
+			providers: flattenProviders(options.providers),
 		}
 
 		const templatesDir = resolvePath(

@@ -92,6 +92,29 @@ email: {
 }
 ```
 
+### Multiple providers
+
+Give each provider its own credentials with the optional `providers` map. Each entry overrides the top-level `apiKey` / `smtp` / `from` for that provider, so you can switch providers per call without reconfiguring:
+
+```ts
+email: {
+  provider: 'resend', // the default
+  from: 'Acme <hello@acme.com>',
+  providers: {
+    resend: { apiKey: process.env.RESEND_API_KEY },
+    postmark: { apiKey: process.env.POSTMARK_API_KEY, from: 'Acme <tx@acme.com>' },
+    smtp: { smtp: { host: 'smtp.example.com', user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } },
+  },
+}
+```
+
+```ts
+// uses the matching credentials from `providers.postmark`
+await sendEmail({ to, subject, template, props }, { provider: 'postmark' })
+```
+
+If you only use one provider, the top-level `apiKey`/`smtp` is all you need — `providers` is optional.
+
 ## Vue email templates
 
 Drop a `.vue` file into `server/emails/` (configurable via `templateDir`) and reference it by filename:
@@ -225,6 +248,7 @@ Set `preview: false` to disable them.
 | `from`        | string    | —                 | Default sender (`"Name <email>"` or `email`) |
 | `apiKey`      | string    | —                 | API key for the REST providers       |
 | `smtp`        | object    | —                 | `{ host, port?, user?, pass?, secure? }` |
+| `providers`   | object    | —                 | Per-provider credentials, e.g. `{ resend: { apiKey }, smtp: { smtp: {...} } }` |
 | `templateDir` | string    | `'server/emails'` | Directory scanned for `.vue` templates |
 | `preview`     | boolean   | `true`            | Enable dev preview routes + DevTools tab |
 | `retries`     | number    | `2`               | Retry attempts on transient failures |

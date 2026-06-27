@@ -131,6 +131,25 @@ export function buildNormalizedPayload(
   }
 }
 
+export function resolveProviderConfig(
+  config: EmailRuntimeConfig,
+  name: string,
+): EmailRuntimeConfig {
+  const overrides = config.providers?.[name]
+  if (!overrides) return config
+
+  return {
+    ...config,
+    apiKey: overrides.apiKey ?? config.apiKey,
+    from: overrides.from ?? config.from,
+    smtpHost: overrides.smtpHost ?? config.smtpHost,
+    smtpPort: overrides.smtpPort ?? config.smtpPort,
+    smtpUser: overrides.smtpUser ?? config.smtpUser,
+    smtpPass: overrides.smtpPass ?? config.smtpPass,
+    smtpSecure: overrides.smtpSecure ?? config.smtpSecure,
+  }
+}
+
 export function isTransientError(error?: string): boolean {
   if (!error) return false
   const lower = error.toLowerCase()

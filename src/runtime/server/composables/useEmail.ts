@@ -8,6 +8,7 @@ import { createProvider } from '../utils/providers/index.js'
 import {
 	validatePayload,
 	buildNormalizedPayload,
+	resolveProviderConfig,
 	isTransientError,
 	sleep,
 } from '../utils/email-utils.js'
@@ -37,10 +38,13 @@ export function useEmail() {
 			if (!payload.text) payload.text = rendered.text
 		}
 
-		const html = payload.html ?? ''
-		const normalized = buildNormalizedPayload(payload, html, config)
+		const providerName = options?.provider || config.provider
+		const resolved = resolveProviderConfig(config, providerName)
 
-		const provider = createProvider(options?.provider || config.provider, config)
+		const html = payload.html ?? ''
+		const normalized = buildNormalizedPayload(payload, html, resolved)
+
+		const provider = createProvider(providerName, resolved)
 		const maxAttempts = (config.retries ?? 2) + 1
 		let lastResponse: EmailResponse | null = null
 

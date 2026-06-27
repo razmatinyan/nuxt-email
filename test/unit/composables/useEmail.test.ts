@@ -16,17 +16,22 @@ vi.mock('nitropack/runtime', () => ({
 			smtpPass: '',
 			retries: 2,
 			retryDelay: 10,
+			providers: {
+				resend: { apiKey: 'resend-key' },
+			},
 		},
 	}),
 }))
 
 const mockSend = vi.fn<(payload: NormalizedPayload) => Promise<EmailResponse>>()
 
+const mockCreateProvider = vi.fn(() => ({
+	name: 'console',
+	send: mockSend,
+}))
+
 vi.mock('../../../src/runtime/server/utils/providers/index.js', () => ({
-	createProvider: () => ({
-		name: 'console',
-		send: mockSend,
-	}),
+	createProvider: mockCreateProvider,
 }))
 
 const { useEmail } =
@@ -270,5 +275,33 @@ describe('useEmailsendBatch', () => {
 		expect(results[1].success).toBe(false)
 		expect(results[1].error).toMatch(/Invalid email address/)
 		expect(results[2].success).toBe(true)
+	})
+})
+
+describe('useEmail provider override', () => {
+	beforeEach(() => {
+		vi.clearAllMocks()
+		mockSend.mockResolvedValue(successResponse)
+	})
+
+	it('sends through the provider passed in options', async () => {
+		const { sendEmail } = useEmail()
+		await sendEmail(
+			{ to: 'a@b.com', subject: 'Test', html: '<p>Hi</p>' },
+			{ provider: 'resend' },
+		)
+		expect(mockCreateProvider).toHaveBeenCalledWith('resend', expect.anything())
+	})
+
+	it('passes the resolved per-provider credentials to createProvider', async () => {
+		const { sendEmail } = useEmail()
+		await sendEmail(
+			{ to: 'a@b.com', subject: 'Test', html: '<p>Hi</p>' },
+			{ provider: 'resend' },
+		)
+		expect(mockCreateProvider).toHaveBeenCalledWith(
+			'resend',
+			expect.objectContaining({ apiKey: 'resend-key' }),
+		)
 	})
 })
